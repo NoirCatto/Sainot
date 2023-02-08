@@ -55,7 +55,6 @@ public partial class Sainot
     {
         try
         {
-            Logger.LogInfo("IL Start");
             var c = new ILCursor(il);
             ILLabel label = null;
 
@@ -184,6 +183,21 @@ public partial class Sainot
             HeadRag.GetHeadRag(self.player).DrawSprites(self, sleaser, rcam, timestacker, campos);
         }
     }
+    
+    private void PlayerGraphicsOnAddToContainer(On.PlayerGraphics.orig_AddToContainer orig, PlayerGraphics self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam, FContainer newcontatiner)
+    {
+        orig(self, sleaser, rcam, newcontatiner);
+
+        if (IsBeltEnabled(self.player))
+        {
+            var headRag = HeadRag.GetHeadRag(self.player);
+            if (headRag.IsInit)
+            {
+                headRag.AddToContainer(self, sleaser, rcam, newcontatiner);
+            }
+            
+        }
+    }
 
     private void PlayerOnNewRoom(On.Player.orig_NewRoom orig, Player self, Room newroom)
     {
@@ -213,10 +227,11 @@ public partial class Sainot
         public float B = 0.04f;
         public Color ragColor; //= new Color(0.8f, 0.05f, 0.04f);
         public Color rag2Color; //= new Color(0.65f, 0.035f, 0.02f);
-        public Vector2 headAttachPos;
         public SharedPhysics.TerrainCollisionData scratchTerrainCollisionData = new SharedPhysics.TerrainCollisionData();
         public Vector2 lastRotation;
         public int SpriteIndex; //Index we start adding sprites at
+
+        public bool IsInit;
 
         public HeadRag(Player self)
         {
@@ -411,6 +426,8 @@ public partial class Sainot
             sleaser.sprites[SpriteIndex + 2] = headBandFront;
 
             AddToContainer(self, sleaser, rcam, null);
+            
+            IsInit = true;
         }
 
         public void DrawSprites(PlayerGraphics self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam, float timestacker, Vector2 campos)

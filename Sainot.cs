@@ -16,7 +16,6 @@ using On.Menu;
 using Debug = UnityEngine.Debug;
 #pragma warning disable CS0618
 
-
 [module: UnverifiableCode]
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 
@@ -50,11 +49,14 @@ public partial class Sainot : BaseUnityPlugin
         On.RainWorld.OnModsInit += RainWorldOnOnModsInit;
     }
 
+    private bool IsInit;
     private void RainWorldOnOnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
     {
         orig(self);
         try
         {
+            if (IsInit) return;
+            
             On.Player.ctor += PlayerOnctor;
             On.Player.GrabUpdate += PlayerOnGrabUpdate;
             IL.Player.GrabUpdate += PlayerILGrabUpdate;
@@ -62,6 +64,7 @@ public partial class Sainot : BaseUnityPlugin
             On.Player.GraphicsModuleUpdated += PlayerOnGraphicsModuleUpdated;
             On.PlayerGraphics.InitiateSprites += PlayerGraphicsOnInitiateSprites;
             On.PlayerGraphics.DrawSprites += PlayerGraphicsOnDrawSprites;
+            On.PlayerGraphics.AddToContainer += PlayerGraphicsOnAddToContainer;
             On.PlayerGraphics.Update += PlayerGraphicsOnUpdate;
             On.Player.NewRoom += PlayerOnNewRoom;
             On.Player.Update += PlayerOnUpdate;
@@ -76,6 +79,7 @@ public partial class Sainot : BaseUnityPlugin
             RwInstance = self;
 
             MachineConnector.SetRegisteredOI("NoirCatto.Sainot", Options);
+            IsInit = true;
         }
         catch (Exception ex)
         {
@@ -83,7 +87,7 @@ public partial class Sainot : BaseUnityPlugin
             throw;
         }
     }
-    
+
     private void RainWorldGameOnShutDownProcess(On.RainWorldGame.orig_ShutDownProcess orig, RainWorldGame self)
     {
         orig(self);
