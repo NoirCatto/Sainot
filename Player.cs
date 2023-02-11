@@ -528,6 +528,8 @@ public partial class Sainot
 
         public void NewRoom(Player self, Room newroom)
         {
+            IsInit = false;
+            
             var graphics = (PlayerGraphics)self.graphicsModule;
 
             #region rag
