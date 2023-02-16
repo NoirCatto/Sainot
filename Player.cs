@@ -20,6 +20,8 @@ public partial class Sainot
         if (IsBeltEnabled(self))
         {
             var belt = new BombBelt(self);
+            belt.WillPlayerBeRealizedFirstTime = true;
+            
             if (StartWithBombs)
             {
                 for (var i = 0; i < belt.Capacity; i++)
@@ -41,7 +43,14 @@ public partial class Sainot
         {
             var belt = BombBelt.GetBelt(self);
             belt.Increment = self.input[0].pckp;
+            
+            //Don't immediately retrieve bomb if swallowing, etc
+            if (self.grasps[0]?.grabbed is not null and not ScavengerBomb)
+            {
+                belt.Lock();
+            }
 
+            //Prefer eating over belt stuff if food in main hand
             if (self.FoodInStomach < self.MaxFoodInStomach && self.grasps[0]?.grabbed is IPlayerEdible)
             {
                 belt.Lock();
@@ -170,7 +179,22 @@ public partial class Sainot
 
         if (IsBeltEnabled(self.player))
         {
-            HeadRag.GetHeadRag(self.player).InitiateSprites(self, sleaser, rcam);
+            var belt = BombBelt.GetBelt(self.player);
+            if (belt.WillPlayerBeRealizedFirstTime)
+            {
+                if (self.player.room.abstractRoom.shelter) //Part #1 in Shelter.DoorClosed
+                {
+                    foreach (var bomb in self.player.room.physicalObjects.SelectMany(x => x.Where(y => y is ScavengerBomb)).ToArray().Cast<ScavengerBomb>())
+                    {
+                        if (belt.IsFull())
+                            break;
+                        belt.BombStraightToBelt(bomb);
+                    }
+                    
+                    belt.WillPlayerBeRealizedFirstTime = false;
+                }
+            }
+            //HeadRag.GetHeadRag(self.player).InitiateSprites(self, sleaser, rcam);
         }
     }
 
@@ -190,12 +214,8 @@ public partial class Sainot
 
         if (IsBeltEnabled(self.player))
         {
-            var headRag = HeadRag.GetHeadRag(self.player);
-            if (headRag.IsInit)
-            {
-                headRag.AddToContainer(self, sleaser, rcam, newcontatiner);
-            }
-            
+            //We're running our own InitiateSprites in AddToContainer hook, so we don't have to worry about messing up sprite indexes.
+            HeadRag.GetHeadRag(self.player).InitiateSprites(self, sleaser, rcam);
         }
     }
 
@@ -220,24 +240,28 @@ public partial class Sainot
 
         //public Vector2[,] rag = new Vector2[4, 6];
         //public Vector2[,] rag2 = new Vector2[4, 6];
-        public Vector2[,] rag = new Vector2[Random.Range(5, Random.Range(5, 7)), 6];
-        public Vector2[,] rag2 = new Vector2[Random.Range(5, Random.Range(5, 7)), 6];
+        private readonly bool EasterEgg;
+        public Vector2[,] rag;
+        public Vector2[,] rag2;
         public float R = 0.8f;
         public float G = 0.05f;
         public float B = 0.04f;
         public Color ragColor; //= new Color(0.8f, 0.05f, 0.04f);
         public Color rag2Color; //= new Color(0.65f, 0.035f, 0.02f);
+        public Color[] custom1Colors;
+        public Color[] custom2Colors;
         public SharedPhysics.TerrainCollisionData scratchTerrainCollisionData = new SharedPhysics.TerrainCollisionData();
         public Vector2 lastRotation;
         public int SpriteIndex; //Index we start adding sprites at
-
-        public bool IsInit;
 
         public HeadRag(Player self)
         {
             var treshold = 0.15f;
             Owner = self;
-            ragColor = new Color(R, G, B);
+            EasterEgg = Random.Range(1, 80) == 1;
+            rag = new Vector2[EasterEgg ? Random.Range(15, Random.Range(15, 28)) : Random.Range(5, Random.Range(5, 7)), 6];
+            rag2 =  new Vector2[EasterEgg ? Random.Range(15, Random.Range(15, 28)) : Random.Range(5, Random.Range(5, 7)), 6];
+            ragColor = !EasterEgg ? new Color(R, G, B) : new Color(0.1f, 0.2f, 0.8f);
             rag2Color = new Color(R > treshold ? R - treshold : R * 0.5f, G > treshold ? G - treshold : G * 0.5f, B > treshold ? B - treshold : B * 0.5f);
             HeadRags.Add(this);
         }
@@ -410,14 +434,37 @@ public partial class Sainot
             SpriteIndex = sleaser.sprites.Length;
             Array.Resize(ref sleaser.sprites, SpriteIndex + 3); //+ number of sprites we want to add
 
-            var trgMesh = TriangleMesh.MakeLongMesh(rag.GetLength(0), false, false); //Headband strips
-            var trgMesh2 = TriangleMesh.MakeLongMesh(rag2.GetLength(0), false, false);
+            var trgMesh = TriangleMesh.MakeLongMesh(rag.GetLength(0), false, EasterEgg); //Headband strips
+            var trgMesh2 = TriangleMesh.MakeLongMesh(rag2.GetLength(0), false, EasterEgg);
             var headBandFront = new FSprite("Symbol_Rock", false);
 
+            if (EasterEgg)
+            {
+
+                custom1Colors = new Color[trgMesh.verticeColors.Length];
+                for (var i = 0; i < trgMesh.verticeColors.Length; i++)
+                {
+                    custom1Colors[i] = new HSLColor(Mathf.Clamp((float)i / (float)trgMesh.verticeColors.Length, 0f, 1f), Random.Range(0.45f, 1f), 0.5f).rgb; //Random.ColorHSV(0f, 1f, 0.8f, 1f, 0.8f, 1f);
+                    trgMesh.verticeColors[i] = custom1Colors[i];
+                }
+
+                custom2Colors = new Color[trgMesh2.verticeColors.Length];
+                for (var i = 0; i < trgMesh2.verticeColors.Length; i++)
+                {
+                    var grCol = new HSLColor(Mathf.Clamp((float)i / (float)trgMesh.verticeColors.Length, 0f, 1f), Random.Range(0f, 1f), 0.5f).rgb;
+                    grCol = new Color(grCol.grayscale, grCol.grayscale, grCol.grayscale);
+                    custom2Colors[i] = grCol; //Random.ColorHSV(0f, 1f, 0f, 0.5f);
+                    trgMesh2.verticeColors[i] = custom2Colors[i];
+                }
+            }
+
             trgMesh.color = ragColor;
-            trgMesh.shader = rcam.game.rainWorld.Shaders["JaggedSquare"];
             trgMesh2.color = rag2Color;
-            trgMesh2.shader = rcam.game.rainWorld.Shaders["JaggedSquare"];
+            if (!EasterEgg)
+            {
+                trgMesh.shader = rcam.game.rainWorld.Shaders["JaggedSquare"];
+                trgMesh2.shader = rcam.game.rainWorld.Shaders["JaggedSquare"];
+            }
             headBandFront.color = ragColor;
             headBandFront.SetPosition(self.head.pos);
 
@@ -426,8 +473,6 @@ public partial class Sainot
             sleaser.sprites[SpriteIndex + 2] = headBandFront;
 
             AddToContainer(self, sleaser, rcam, null);
-            
-            IsInit = true;
         }
 
         public void DrawSprites(PlayerGraphics self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam, float timestacker, Vector2 campos)
@@ -453,7 +498,21 @@ public partial class Sainot
 
             #region rag1
 
-            sleaser.sprites[SpriteIndex].color = ragColor;
+            if (!EasterEgg)
+            {
+                sleaser.sprites[SpriteIndex].color = ragColor;
+            }
+            else
+            {
+                sleaser.sprites[SpriteIndex].color = Color.white;
+
+                for (var i = 0; i < custom1Colors.Length; i++)
+                {
+                    ((TriangleMesh)sleaser.sprites[SpriteIndex]).verticeColors[i] = custom1Colors[i];
+                }
+                Debug.Log(((TriangleMesh)sleaser.sprites[SpriteIndex]).verticeColors.Length);
+                
+            }
 
             var num = 0f;
             var a = RagAttachPos(timestacker, self);
@@ -477,7 +536,21 @@ public partial class Sainot
 
             #region rag2
 
-            sleaser.sprites[SpriteIndex + 1].color = rag2Color;
+            if (!EasterEgg)
+            {
+                sleaser.sprites[SpriteIndex + 1].color = rag2Color;
+            }
+            else
+            {
+                sleaser.sprites[SpriteIndex + 1].color = Color.white;
+
+                for (var i = 0; i < custom2Colors.Length; i++)
+                {
+                    ((TriangleMesh)sleaser.sprites[SpriteIndex + 1]).verticeColors[i] = custom2Colors[i];
+                }
+                Debug.Log(((TriangleMesh)sleaser.sprites[SpriteIndex + 1]).verticeColors.Length);
+                
+            }
 
             var num22 = 0f;
             var a22 = Rag2AttachPos(timestacker, self);
@@ -528,8 +601,6 @@ public partial class Sainot
 
         public void NewRoom(Player self, Room newroom)
         {
-            IsInit = false;
-            
             var graphics = (PlayerGraphics)self.graphicsModule;
 
             #region rag

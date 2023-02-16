@@ -7,6 +7,7 @@ using System.Security.Permissions;
 using UnityEngine;
 using RWCustom;
 using BepInEx;
+using BepInEx.Logging;
 using Menu.Remix.MixedUI;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -70,6 +71,8 @@ public partial class Sainot : BaseUnityPlugin
             On.Player.Update += PlayerOnUpdate;
             IL.Player.ThrowObject += PlayerOnThrowObject;
             On.SlugcatStats.ctor += SlugcatStatsOnctor;
+            
+            On.ShelterDoor.DoorClosed += ShelterDoorOnDoorClosed;
 
             IL.SeedCob.HitByWeapon += SeedCobOnHitByWeapon;
 

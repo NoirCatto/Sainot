@@ -14,6 +14,8 @@ public partial class Sainot
         
         public Player Owner;
 
+        public bool WillPlayerBeRealizedFirstTime;
+
         public Dictionary<ScavengerBomb, AbstractBombStick> Bombs;
 
         public int Capacity = BeltsCapacity;
@@ -75,6 +77,16 @@ public partial class Sainot
         
         public void Update()
         {
+            foreach (var bns in Bombs.ToArray())
+            {
+                if (bns.Key.slatedForDeletetion || bns.Key.grabbedBy.Count > 0) //Bomb steal fix
+                {
+                    bns.Value.Deactivate();
+                    bns.Key.CollideWithObjects = true;
+                    Bombs.Remove(bns.Key);
+                }
+            }
+            
             if (Increment)
             {
                 if (locked) 
@@ -148,7 +160,7 @@ public partial class Sainot
 
         public void Lock()
         {
-            this.Increment = false;
+            this.counter = 0;
             this.locked = true;
         }
 
