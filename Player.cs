@@ -13,25 +13,37 @@ namespace Sainot;
 
 public partial class Sainot
 {
+    private void CreateBombBelt(Player self)
+    {
+        var belt = new BombBelt(self);
+        belt.WillPlayerBeRealizedFirstTime = true;
+        
+        if (StartWithBombs)
+        {
+            for (var i = 0; i < belt.Capacity; i++)
+            {
+                var newBomb = new ScavengerBomb(new AbstractPhysicalObject(self.room.world, AbstractPhysicalObject.AbstractObjectType.ScavengerBomb, null, self.room.GetWorldCoordinate(self.mainBodyChunk.pos), self.room.game.GetNewID()), self.room.world);
+                if (self.abstractCreature.creatureTemplate.type == MoreSlugcatsEnums.CreatureTemplateType.SlugNPC)
+                {
+                    //I don't understand why, and at this point I don't want to know
+                    newBomb.abstractPhysicalObject.RealizeInRoom();
+                }
+                belt.BombStraightToBelt(newBomb);
+            }
+        }
+    }
+    private void CreateHeadRag(Player self)
+    {
+        new HeadRag(self);
+    }
+    
     private void PlayerOnctor(On.Player.orig_ctor orig, Player self, AbstractCreature abstractcreature, World world)
     {
         orig(self, abstractcreature, world);
-
         if (IsBeltEnabled(self))
         {
-            var belt = new BombBelt(self);
-            belt.WillPlayerBeRealizedFirstTime = true;
-            
-            if (StartWithBombs)
-            {
-                for (var i = 0; i < belt.Capacity; i++)
-                {
-                    var newBomb = new ScavengerBomb(new AbstractPhysicalObject(world, AbstractPhysicalObject.AbstractObjectType.ScavengerBomb, null, self.room.GetWorldCoordinate(self.mainBodyChunk.pos), self.room.game.GetNewID()), world);
-                    belt.BombStraightToBelt(newBomb);
-                }
-            }
-
-            new HeadRag(self);
+            CreateBombBelt(self);
+            CreateHeadRag(self);
         }
     }
 
@@ -42,6 +54,8 @@ public partial class Sainot
         if (IsBeltEnabled(self))
         {
             var belt = BombBelt.GetBelt(self);
+            if (belt == null) return;
+
             belt.Increment = self.input[0].pckp;
             
             //Don't immediately retrieve bomb if swallowing, etc
@@ -78,6 +92,8 @@ public partial class Sainot
                 if (IsBeltEnabled(self))
                 {
                     var belt = BombBelt.GetBelt(self);
+                    if (belt == null) return true;
+                    
                     if (belt.ReadyToAddBomb())
                     {
                         return false;
@@ -103,6 +119,8 @@ public partial class Sainot
                 if (IsBeltEnabled(self))
                 {
                     var belt = BombBelt.GetBelt(self);
+                    if (belt == null) return true;
+                    
                     if (belt.ReadyToAddBomb())
                     {
                         return false;
@@ -126,6 +144,7 @@ public partial class Sainot
                 if (IsBeltEnabled(self))
                 {
                     var belt = BombBelt.GetBelt(self);
+                    if (belt == null) return;
 
                     if (self.wantToPickUp > 0 && self.pickUpCandidate is ScavengerBomb bombCandidate)
                     {
@@ -158,7 +177,7 @@ public partial class Sainot
     {
         if (IsBeltEnabled(self))
         {
-            BombBelt.GetBelt(self).GraphicsModuleUpdated(actuallyviewed, eu);
+            BombBelt.GetBelt(self)?.GraphicsModuleUpdated(actuallyviewed, eu);
         }
 
         orig(self, actuallyviewed, eu);
@@ -169,7 +188,7 @@ public partial class Sainot
         orig(self);
         if (IsBeltEnabled(self.player))
         {
-            HeadRag.GetHeadRag(self.player).GraphicsUpdate(self);
+            HeadRag.GetHeadRag(self.player)?.GraphicsUpdate(self);
         }
     }
 
@@ -180,6 +199,9 @@ public partial class Sainot
         if (IsBeltEnabled(self.player))
         {
             var belt = BombBelt.GetBelt(self.player);
+            if (belt == null) CreateBombBelt(self.player);
+            belt = BombBelt.GetBelt(self.player);
+            
             if (belt.WillPlayerBeRealizedFirstTime)
             {
                 if (self.player.room.abstractRoom.shelter) //Part #1 in Shelter.DoorClosed
@@ -204,7 +226,7 @@ public partial class Sainot
 
         if (IsBeltEnabled(self.player))
         {
-            HeadRag.GetHeadRag(self.player).DrawSprites(self, sleaser, rcam, timestacker, campos);
+            HeadRag.GetHeadRag(self.player)?.DrawSprites(self, sleaser, rcam, timestacker, campos);
         }
     }
     
@@ -215,6 +237,8 @@ public partial class Sainot
         if (IsBeltEnabled(self.player))
         {
             //We're running our own InitiateSprites in AddToContainer hook, so we don't have to worry about messing up sprite indexes.
+            var headRag = HeadRag.GetHeadRag(self.player);
+            if (headRag == null) CreateHeadRag(self.player);
             HeadRag.GetHeadRag(self.player).InitiateSprites(self, sleaser, rcam);
         }
     }
