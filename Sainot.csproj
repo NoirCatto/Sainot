@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <LangVersion>11</LangVersion>
+    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -60,6 +60,15 @@
     <Reference Include="MonoMod.Utils">
       <HintPath>..\REFERENCES\MonoMod.Utils.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\REFERENCES\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Rewired_Core">
+      <HintPath>..\REFERENCES\Rewired_Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Mathematics">
+      <HintPath>..\REFERENCES\Unity.Mathematics.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\REFERENCES\UnityEngine.dll</HintPath>
     </Reference>
@@ -72,10 +81,18 @@
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>..\REFERENCES\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\REFERENCES\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="mod\plugins\" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="cp -T &quot;/home/master/Coding/CSharp/Rain World/Sainot/obj/Debug/net48/Sainot.dll&quot; &quot;/home/master/Games/Rain World/RainWorld_Data/StreamingAssets/mods/Sainot/plugins/Sainot.dll&quot;" />
+    <Exec Command="cp -T &quot;/home/master/Coding/CSharp/Rain World/Sainot/obj/Debug/net48/Sainot.pdb&quot; &quot;/home/master/Games/Rain World/RainWorld_Data/StreamingAssets/mods/Sainot/plugins/Sainot.pdb&quot;" />
   </Target>
 
 </Project>

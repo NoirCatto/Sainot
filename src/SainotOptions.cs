@@ -12,7 +12,7 @@ public class SainotOptions : OptionInterface
     {
         Logger = loggerSource;
         Rambo = this.config.Bind<bool>("Rambo", true);
-        StartWithBombs = this.config.Bind<bool>("StartWithBombs", false);
+        StartWithBombs = this.config.Bind<bool>("StartWithBombs", true);
         BeltCapacity = this.config.Bind<int>("BeltCapacity", 3, new ConfigAcceptableRange<int>(0, 100));
     }
 

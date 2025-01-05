@@ -1,0 +1,11 @@
+{
+  "id": "NoirCatto.Sainot",
+  "name": "Sain't",
+  "version": "2.0.0",
+  "authors": "NoirCatto",
+  "description": "Gives Saint some self-defense options",
+  "requirements": ["moreslugcats"],
+  "requirements_names": ["More Slugcats Expansion"],
+  "tags": ["Campaigns"],
+  "checksum_override_version": true
+}
