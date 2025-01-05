@@ -2,7 +2,6 @@
 using System.Security;
 using System.Security.Permissions;
 using BepInEx;
-using MoreSlugcats;
 
 #pragma warning disable CS0618
 
@@ -14,13 +13,17 @@ namespace Sainot;
 [BepInPlugin("NoirCatto.Sainot", "Sain't", "1.0.0")]
 public partial class Sainot : BaseUnityPlugin
 {
-    public static SainotOptions Options;
+    public static SainotOptions ModOptions;
+
+    public static bool Rambo => ModOptions.Rambo.Value;
+    public static bool StartWithBombs => ModOptions.StartWithBombs.Value;
+    public static int BeltCapacity => ModOptions.BeltCapacity.Value;
 
     public Sainot()
     {
         try
         {
-            Options = new SainotOptions(this, Logger);
+            ModOptions = new SainotOptions(this, Logger);
         }
         catch (Exception ex)
         {
@@ -41,7 +44,17 @@ public partial class Sainot : BaseUnityPlugin
         {
             if (IsInit) return;
 
-            MachineConnector.SetRegisteredOI("NoirCatto.Sainot", Options);
+            On.SlugcatStats.ctor += SlugcatStatsOnctor;
+            On.Player.NewRoom += PlayerOnNewRoom;
+            On.PlayerGraphics.InitiateSprites += PlayerGraphicsOnInitiateSprites;
+            On.PlayerGraphics.AddToContainer += PlayerGraphicsOnAddToContainer;
+            On.PlayerGraphics.DrawSprites += PlayerGraphicsOnDrawSprites;
+            On.PlayerGraphics.Update += PlayerGraphicsOnUpdate;
+
+            IL.Player.ThrowObject += PlayerOnThrowObject;
+            IL.SeedCob.HitByWeapon += SeedCobOnHitByWeapon;
+
+            MachineConnector.SetRegisteredOI("NoirCatto.Sainot", ModOptions);
             IsInit = true;
         }
         catch (Exception ex)
@@ -49,4 +62,5 @@ public partial class Sainot : BaseUnityPlugin
             Logger.LogError(ex);
         }
     }
+
 }
