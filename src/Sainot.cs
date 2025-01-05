@@ -45,6 +45,7 @@ public partial class Sainot : BaseUnityPlugin
             if (IsInit) return;
 
             On.SlugcatStats.ctor += SlugcatStatsOnctor;
+            On.Player.ctor += PlayerOnctor;
             On.Player.NewRoom += PlayerOnNewRoom;
             On.Player.GrabUpdate += PlayerOnGrabUpdate;
             IL.Player.GrabUpdate += PlayerILGrabUpdate;
@@ -55,6 +56,8 @@ public partial class Sainot : BaseUnityPlugin
             On.PlayerGraphics.AddToContainer += PlayerGraphicsOnAddToContainer;
             On.PlayerGraphics.DrawSprites += PlayerGraphicsOnDrawSprites;
             On.PlayerGraphics.Update += PlayerGraphicsOnUpdate;
+
+            On.Room.AddObject += RoomOnAddObject;
 
             IL.Player.ThrowObject += PlayerOnThrowObject;
             IL.SeedCob.HitByWeapon += SeedCobOnHitByWeapon;

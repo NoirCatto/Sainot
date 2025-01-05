@@ -30,6 +30,41 @@ public partial class Sainot
         }
     }
 
+    private void PlayerOnctor(On.Player.orig_ctor orig, Player self, AbstractCreature abstractcreature, World world)
+    {
+        orig(self, abstractcreature, world);
+
+        if (!self.TryGetData(out var data)) return;
+
+        if (self.room.abstractRoom.shelter) //Don't steal items if spawned in a non-shelter room
+        {
+            foreach (var bomb in self.room.physicalObjects.SelectMany(x => x).OfType<ScavengerBomb>().ToList())
+            {
+                if (data.Belt.IsFull())
+                    break;
+
+                data.Belt.BombStraightToBelt(bomb);
+            }
+        }
+
+        if (StartWithBombs)
+        {
+            while (!data.Belt.IsFull())
+            {
+                var newBomb = new AbstractPhysicalObject(world, AbstractPhysicalObject.AbstractObjectType.ScavengerBomb, null, self.room.GetWorldCoordinate(self.mainBodyChunk.pos), world.game.GetNewID());
+                newBomb.RealizeInRoom();
+
+                if (newBomb.realizedObject == null)
+                {
+                    Logger.LogError("Unable to spawn a ScavengerBomb!");
+                    break; //Prevent freeze in case of failure
+                }
+
+                data.Belt.BombStraightToBelt((ScavengerBomb)newBomb.realizedObject);
+            }
+        }
+    }
+
     private void PlayerOnGrabUpdate(On.Player.orig_GrabUpdate orig, Player self, bool eu)
     {
         orig(self, eu);
@@ -127,7 +162,6 @@ public partial class Sainot
         catch (Exception ex)
         {
             Logger.LogError(ex);
-            throw;
         }
     }
 

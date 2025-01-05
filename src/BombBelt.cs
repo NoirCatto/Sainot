@@ -26,12 +26,6 @@ public class BombBelt
         Data = data;
     }
 
-    public void Update(bool increment)
-    {
-        Increment = increment;
-        this.Update();
-    }
-
     public void Update()
     {
         foreach (var bns in Bombs.ToList())
