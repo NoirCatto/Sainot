@@ -7,6 +7,18 @@ namespace Sainot;
 
 public partial class Sainot
 {
+    //Belt
+    private void PlayerOnGraphicsModuleUpdated(On.Player.orig_GraphicsModuleUpdated orig, Player self, bool actuallyviewed, bool eu)
+    {
+        orig(self, actuallyviewed, eu);
+        if (!self.TryGetData(out var data))
+            return;
+
+        data.Belt.GraphicsModuleUpdated(actuallyviewed, eu);
+    }
+
+
+    //Headrag
     private void PlayerGraphicsOnInitiateSprites(On.PlayerGraphics.orig_InitiateSprites orig, PlayerGraphics self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam)
     {
         if (!self.player.TryGetData(out var data))

@@ -46,6 +46,11 @@ public partial class Sainot : BaseUnityPlugin
 
             On.SlugcatStats.ctor += SlugcatStatsOnctor;
             On.Player.NewRoom += PlayerOnNewRoom;
+            On.Player.GrabUpdate += PlayerOnGrabUpdate;
+            IL.Player.GrabUpdate += PlayerILGrabUpdate;
+            On.Player.Grabability += PlayerOnGrabability;
+
+            On.Player.GraphicsModuleUpdated += PlayerOnGraphicsModuleUpdated;
             On.PlayerGraphics.InitiateSprites += PlayerGraphicsOnInitiateSprites;
             On.PlayerGraphics.AddToContainer += PlayerGraphicsOnAddToContainer;
             On.PlayerGraphics.DrawSprites += PlayerGraphicsOnDrawSprites;

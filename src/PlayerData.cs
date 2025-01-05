@@ -24,6 +24,7 @@ public static class PlayerCWT
 public class PlayerData //Rambo only
 {
     public readonly Player Owner;
+    public BombBelt Belt;
     public HeadRag Rag;
 
     public int TotalSprites;
@@ -49,6 +50,7 @@ public class PlayerData //Rambo only
     public PlayerData(Player owner)
     {
         Owner = owner;
+        Belt = new BombBelt(this);
         Rag = new HeadRag(this);
         NewSprites = Rag.SpriteIndex.Length;
     }
