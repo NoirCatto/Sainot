@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using MoreSlugcats;
+using UnityEngine;
 
 namespace Sainot;
 
@@ -29,6 +30,21 @@ public class PlayerData //Rambo only
     public int NewSprites;
 
     public bool CallingAddToContainerFromOrigInitiateSprites;
+
+    public int FlipDirection
+    {
+        get
+        {
+            if (Mathf.Abs(Owner.bodyChunks[0].pos.x - Owner.bodyChunks[1].pos.x) < 2f)
+            {
+                return Owner.flipDirection;
+            }
+            else
+            {
+                return Owner.bodyChunks[0].pos.x > Owner.bodyChunks[1].pos.x ? 1 : -1;
+            }
+        }
+    }
 
     public PlayerData(Player owner)
     {

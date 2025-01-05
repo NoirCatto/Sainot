@@ -118,7 +118,7 @@ public partial class Sainot
         var dirUp = (bodyZeroPos - bodyOnePos).normalized;
 
         newPos = Custom.RotateAroundOrigo(newPos, Custom.VecToDeg(dirUp));
-        newPos = headPos + newPos + new Vector2(isCrawl ? self.player.flipDirection == 1 ? -4f : 4f : 0f, isCrawl ? 3f : 0f);
+        newPos = headPos + newPos + new Vector2(isCrawl ? data.FlipDirection == 1 ? -4f : 4f : 0f, isCrawl ? 3f : 0f);
 
         sleaser.sprites[data.Rag.SpriteIndex[0]].SetPosition(newPos - campos);
         sleaser.sprites[data.Rag.SpriteIndex[0]].rotation = isCrawl ? 0f : Custom.VecToDeg(self.head.connection.Rotation);
