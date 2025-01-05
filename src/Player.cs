@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MoreSlugcats;
+using RWCustom;
 
 namespace Sainot;
 
@@ -131,10 +133,18 @@ public partial class Sainot
 
     private Player.ObjectGrabability PlayerOnGrabability(On.Player.orig_Grabability orig, Player self, PhysicalObject obj)
     {
-        if (self.TryGetData(out var data))
+        if (obj is ScavengerBomb bomb)
         {
-            if (obj is ScavengerBomb bomb && data.Belt.Bombs.ContainsKey(bomb))
-                return Player.ObjectGrabability.CantGrab;
+            if (ModManager.CoopAvailable && !Custom.rainWorld.options.friendlySteal)
+            {
+                if (bomb.abstractPhysicalObject.stuckObjects.Any(x => x is AbstractBombStick))
+                    return Player.ObjectGrabability.CantGrab;
+            }
+            else
+            {
+                if (self.TryGetData(out var data) && data.Belt.Bombs.ContainsKey(bomb))
+                    return Player.ObjectGrabability.CantGrab;
+            }
         }
 
         return orig(self, obj);
