@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security;
 using System.Security.Permissions;
 using BepInEx;
@@ -19,6 +20,8 @@ public partial class Sainot : BaseUnityPlugin
     public static bool StartWithBombs => ModOptions.StartWithBombs.Value;
     public static int BeltCapacity => ModOptions.BeltCapacity.Value;
 
+    public static bool Bandanas; //NoirCatto.Bandanas
+
     public Sainot()
     {
         try
@@ -34,16 +37,18 @@ public partial class Sainot : BaseUnityPlugin
     private void OnEnable()
     {
         On.RainWorld.OnModsInit += RainWorldOnOnModsInit;
+        On.RainWorld.PostModsInit += RainWorldOnPostModsInit;
     }
 
-    private bool IsInit;
+    private bool _isInit;
     private void RainWorldOnOnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
     {
         orig(self);
+        if (_isInit) return;
+
         try
         {
-            if (IsInit) return;
-
+            _isInit = true;
             On.SlugcatStats.ctor += SlugcatStatsOnctor;
             On.Player.ctor += PlayerOnctor;
             On.Player.NewRoom += PlayerOnNewRoom;
@@ -63,7 +68,28 @@ public partial class Sainot : BaseUnityPlugin
             IL.SeedCob.HitByWeapon += SeedCobOnHitByWeapon;
 
             MachineConnector.SetRegisteredOI("NoirCatto.Sainot", ModOptions);
-            IsInit = true;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex);
+        }
+    }
+
+    private bool _isPostInit;
+    private void RainWorldOnPostModsInit(On.RainWorld.orig_PostModsInit orig, RainWorld self)
+    {
+        orig(self);
+        if (_isPostInit) return;
+        
+        try
+        {
+            _isPostInit = true;
+
+            if (ModManager.ActiveMods.Any(x => x.id == "NoirCatto.Bandanas"))
+            {
+                Bandanas = true;
+                Logger.LogInfo("Sain't: Bandanas mod detected, ignoring local...");
+            }
         }
         catch (Exception ex)
         {

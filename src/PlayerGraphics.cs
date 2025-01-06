@@ -17,11 +17,10 @@ public partial class Sainot
         data.Belt.GraphicsModuleUpdated(actuallyviewed, eu);
     }
 
-
     //Headrag
     private void PlayerGraphicsOnInitiateSprites(On.PlayerGraphics.orig_InitiateSprites orig, PlayerGraphics self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam)
     {
-        if (!self.player.TryGetData(out var data))
+        if (!self.player.TryGetDataRag(out var data))
         {
             orig(self, sleaser, rcam);
             return;
@@ -91,7 +90,7 @@ public partial class Sainot
 
     private void PlayerGraphicsOnAddToContainer(On.PlayerGraphics.orig_AddToContainer orig, PlayerGraphics self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam, FContainer newcontatiner)
     {
-        if (!self.player.TryGetData(out var data))
+        if (!self.player.TryGetDataRag(out var data))
         {
             orig(self, sleaser, rcam, newcontatiner);
             return;
@@ -117,7 +116,7 @@ public partial class Sainot
     {
         orig(self, sleaser, rcam, timestacker, campos);
 
-        if (!self.player.TryGetData(out var data)) return;
+        if (!self.player.TryGetDataRag(out var data)) return;
         if (rcam.game.DEBUGMODE) return;
 
         var isCrawl = self.player.bodyMode == Player.BodyModeIndex.Crawl || self.player.bodyMode == Player.BodyModeIndex.CorridorClimb;
@@ -180,7 +179,7 @@ public partial class Sainot
     {
         orig(self);
 
-        if (!self.player.TryGetData(out var data)) return;
+        if (!self.player.TryGetDataRag(out var data)) return;
         if (self.player.room.game.DEBUGMODE) return;
 
         var player = self.player;
@@ -266,7 +265,7 @@ public partial class Sainot
     private void PlayerOnNewRoom(On.Player.orig_NewRoom orig, Player self, Room newroom)
     {
         orig(self, newroom);
-        if (!self.TryGetData(out var data)) return;
+        if (!self.TryGetDataRag(out var data)) return;
 
         var graphics = (PlayerGraphics)self.graphicsModule;
 

@@ -19,6 +19,17 @@ public static class PlayerCWT
         playerData = null;
         return false;
     }
+    public static bool TryGetDataRag(this Player player, out PlayerData playerData) //NoirCatto.Bandanas compatibility
+    {
+        if (player.SlugCatClass == MoreSlugcatsEnums.SlugcatStatsName.Saint && Sainot.Rambo && !Sainot.Bandanas)
+        {
+            playerData = GetData(player);
+            return true;
+        }
+
+        playerData = null;
+        return false;
+    }
 }
 
 public class PlayerData //Rambo only

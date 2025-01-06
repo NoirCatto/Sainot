@@ -29,11 +29,13 @@ public class SainotOptions : OptionInterface
     public readonly Configurable<int> HeadRagLength;
     private UIelement[] UIArrOptions;
     private UIelement[] UIArrRambo;
+    private UIelement[] UIArrHeadband;
     private UIelement[] UIArrColors;
     private OpCheckBox RamboCheckBox;
     private OpCheckBox HeadRagUseColorCheckBox;
     private OpCheckBox HeadRagColorRainbowCheckBox;
     private OpColorPicker HeadRagColorColorPicker;
+    private OpLabel BandanasWarning;
     public override void Initialize()
     {
         var opTab = new OpTab(this, "Options");
@@ -51,7 +53,6 @@ public class SainotOptions : OptionInterface
         };
         opTab.AddItems(UIArrOptions);
 
-        HeadRagUseColorCheckBox = new OpCheckBox(HeadRagUseColor, 10f, 280f);
         UIArrRambo = new UIelement[]
         {
             new OpLabel(10f, 470f, "Rambo", true){color = new Color(0.65f, 0.1f, 0.1f)},
@@ -60,14 +61,19 @@ public class SainotOptions : OptionInterface
 
             new OpLabel(10f, 410f, "BombBelt capacity (default = 3)"),
             new OpUpdown(BeltCapacity, new Vector2(10f, 380f), 100f),
+        };
+        opTab.AddItems(UIArrRambo);
 
+        HeadRagUseColorCheckBox = new OpCheckBox(HeadRagUseColor, 10f, 280f);
+        UIArrHeadband = new UIelement[]
+        {
             new OpLabel(10f, 340f, "Headband length (default = 5)"),
             new OpSlider(HeadRagLength, new Vector2(10f, 310f), 100),
 
             new OpLabel(40f, 280f, "Custom headband color"),
             HeadRagUseColorCheckBox,
         };
-        opTab.AddItems(UIArrRambo);
+        opTab.AddItems(UIArrHeadband);
 
         HeadRagColorRainbowCheckBox = new OpCheckBox(HeadRagColorRainbow, 10f, 250f);
         HeadRagColorColorPicker = new OpColorPicker(HeadRagColor, new Vector2(10f, 90f));
@@ -78,6 +84,9 @@ public class SainotOptions : OptionInterface
             HeadRagColorColorPicker,
         };
         opTab.AddItems(UIArrColors);
+
+        BandanasWarning = new OpLabel(150f, 250f, "Bandanas mod overrules Saint's headband settings."){ color = Color.red};
+        opTab.AddItems(BandanasWarning);
     }
 
     public override void Update()
@@ -86,23 +95,41 @@ public class SainotOptions : OptionInterface
         {
             foreach (var element in UIArrRambo)
                 element.Hide();
+            foreach (var element in UIArrHeadband)
+                element.Hide();
             foreach (var element in UIArrColors)
                 element.Hide();
+            BandanasWarning.Hide();
         }
         else
         {
             foreach (var element in UIArrRambo)
                 element.Show();
 
-            if (HeadRagUseColorCheckBox.GetValueBool())
+            if (!Sainot.Bandanas)
             {
-                foreach (var element in UIArrColors)
+                foreach (var element in UIArrHeadband)
                     element.Show();
+                BandanasWarning.Hide();
+
+                if (HeadRagUseColorCheckBox.GetValueBool())
+                {
+                    foreach (var element in UIArrColors)
+                        element.Show();
+                }
+                else
+                {
+                    foreach (var element in UIArrColors)
+                        element.Hide();
+                }
             }
             else
             {
+                foreach (var element in UIArrHeadband)
+                    element.Hide();
                 foreach (var element in UIArrColors)
                     element.Hide();
+                BandanasWarning.Show();
             }
         }
     }
