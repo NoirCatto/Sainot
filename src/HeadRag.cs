@@ -7,7 +7,7 @@ public class HeadRag
     public readonly PlayerData Data;
     public Player Owner => Data.Owner;
 
-    public readonly bool EasterEgg;
+    public bool UseRainbow => Sainot.ModOptions.HeadRagUseColor.Value && Sainot.ModOptions.HeadRagColorRainbow.Value;
     public Vector2[][,] RagSize = new Vector2[2][,];
     public float R = 0.8f;
     public float G = 0.05f;
@@ -22,12 +22,21 @@ public class HeadRag
     public HeadRag(PlayerData data)
     {
         Data = data;
-        
+
+        if (Sainot.ModOptions.HeadRagUseColor.Value)
+        {
+            var col = Sainot.ModOptions.HeadRagColor.Value;
+            R = col.r;
+            G = col.g;
+            B = col.b;
+        }
+
         var treshold = 0.15f;
-        EasterEgg = Random.Range(1, 80) == 1;
-        RagSize[0] = new Vector2[EasterEgg ? Random.Range(15, Random.Range(15, 28)) : Random.Range(5, Random.Range(5, 7)), 6];
-        RagSize[1] =  new Vector2[EasterEgg ? Random.Range(15, Random.Range(15, 28)) : Random.Range(5, Random.Range(5, 7)), 6];
-        RagColor[0] = !EasterEgg ? new Color(R, G, B) : new Color(0.1f, 0.2f, 0.8f);
+        var minLength = Sainot.ModOptions.HeadRagLength.Value;
+        var maxLength = Mathf.CeilToInt(minLength * 1.8f);
+        RagSize[0] = new Vector2[Random.Range(minLength, Random.Range(minLength, maxLength)), 6];
+        RagSize[1] = new Vector2[Random.Range(minLength, Random.Range(minLength, maxLength)), 6];
+        RagColor[0] = new Color(R, G, B);
         RagColor[1] = new Color(R > treshold ? R - treshold : R * 0.5f, G > treshold ? G - treshold : G * 0.5f, B > treshold ? B - treshold : B * 0.5f);
     }
 

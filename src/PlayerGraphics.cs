@@ -44,26 +44,27 @@ public partial class Sainot
             Array.Resize(ref sleaser.sprites, data.TotalSprites + data.NewSprites);
 
             var headBandFront = new FSprite("Symbol_Rock", false);
-            var trgMesh = TriangleMesh.MakeLongMesh(data.Rag.RagSize[0].GetLength(0), false, data.Rag.EasterEgg);
-            var trgMesh2 = TriangleMesh.MakeLongMesh(data.Rag.RagSize[1].GetLength(0), false, data.Rag.EasterEgg);
+            var trgMesh = TriangleMesh.MakeLongMesh(data.Rag.RagSize[0].GetLength(0), false, data.Rag.UseRainbow);
+            var trgMesh2 = TriangleMesh.MakeLongMesh(data.Rag.RagSize[1].GetLength(0), false, data.Rag.UseRainbow);
 
             headBandFront.color = data.Rag.RagColor[0];
             headBandFront.SetPosition(self.head.pos);
 
-            if (data.Rag.EasterEgg)
+            if (data.Rag.UseRainbow)
             {
+                var hueOffset = Random.Range(0f, Random.Range(0f, 1f));
 
                 data.Rag.CustomColors[0] = new Color[trgMesh.verticeColors.Length];
                 for (var i = 0; i < trgMesh.verticeColors.Length; i++)
                 {
-                    data.Rag.CustomColors[0][i] = new HSLColor(Mathf.Clamp((float)i / (float)trgMesh.verticeColors.Length, 0f, 1f), Random.Range(0.45f, 1f), 0.5f).rgb; //Random.ColorHSV(0f, 1f, 0.8f, 1f, 0.8f, 1f);
+                    data.Rag.CustomColors[0][i] = new HSLColor(Mathf.Clamp(((float)i / (float)trgMesh.verticeColors.Length) + hueOffset, 0f, 1f), Random.Range(0.45f, 1f), 0.5f).rgb; //Random.ColorHSV(0f, 1f, 0.8f, 1f, 0.8f, 1f);
                     trgMesh.verticeColors[i] = data.Rag.CustomColors[0][i];
                 }
 
                 data.Rag.CustomColors[1] = new Color[trgMesh2.verticeColors.Length];
                 for (var i = 0; i < trgMesh2.verticeColors.Length; i++)
                 {
-                    var grCol = new HSLColor(Mathf.Clamp((float)i / (float)trgMesh.verticeColors.Length, 0f, 1f), Random.Range(0f, 1f), 0.5f).rgb;
+                    var grCol = new HSLColor(Mathf.Clamp(((float)i / (float)trgMesh.verticeColors.Length) + hueOffset, 0f, 1f), Random.Range(0f, 1f), 0.5f).rgb;
                     grCol = new Color(grCol.grayscale, grCol.grayscale, grCol.grayscale);
                     data.Rag.CustomColors[1][i] = grCol; //Random.ColorHSV(0f, 1f, 0f, 0.5f);
                     trgMesh2.verticeColors[i] = data.Rag.CustomColors[1][i];
@@ -73,7 +74,7 @@ public partial class Sainot
             trgMesh.color = data.Rag.RagColor[0];
             trgMesh2.color = data.Rag.RagColor[1];
 
-            if (!data.Rag.EasterEgg)
+            if (!data.Rag.UseRainbow)
             {
                 trgMesh.shader = rcam.game.rainWorld.Shaders["JaggedSquare"];
                 trgMesh2.shader = rcam.game.rainWorld.Shaders["JaggedSquare"];
@@ -140,7 +141,7 @@ public partial class Sainot
 
         for (var i = 0; i < 2; i++)
         {
-            if (!data.Rag.EasterEgg)
+            if (!data.Rag.UseRainbow)
             {
                 sleaser.sprites[data.Rag.SpriteIndex[1 + i]].color = data.Rag.RagColor[i];
             }
