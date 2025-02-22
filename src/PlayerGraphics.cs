@@ -268,6 +268,7 @@ public partial class Sainot
         if (!self.TryGetDataRag(out var data)) return;
 
         var graphics = (PlayerGraphics)self.graphicsModule;
+        if (graphics == null) return;
 
         for (var i = 0; i < 2; i++)
         {
